@@ -45,6 +45,7 @@ is_render = os.getenv("RENDER", "").lower() == "true"
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(
         title="Vesper | Swayamvar Intelligence Suite",
+        favicon="/swmvr-static/inventide-logo.png",
         host="0.0.0.0",
         port=int(os.getenv("PORT", "8090")),
         reload=not is_render,
