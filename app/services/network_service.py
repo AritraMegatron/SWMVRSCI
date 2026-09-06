@@ -145,43 +145,79 @@ def build_table_rows(stores: Iterable[dict]) -> list[dict]:
 
 
 def build_store_observation(store: dict) -> tuple[str, str]:
+    store_id = store.get("store_id", "")
+    store_name = store["store_name"]
+    top_category = store["top_category"]
+
     if store["status"] == "At risk":
         observation = (
-            f"{store['store_name']} has the network's highest inventory pressure: "
+            f"{store_name} has the network's highest inventory pressure: "
             f"{store['stock_cover_weeks']:.1f} weeks of cover, "
             f"{store['aged_inventory_pct']:.1f}% aged inventory and "
             f"{store['sales_growth_pct']:+.1f}% sales growth. "
             f"{store['at_risk_skus']} SKUs need attention."
         )
-        action = (
-            "Reduce replenishment on slow variants, identify transferable stock, "
-            "and protect availability only for the fastest-moving size-color combinations."
-        )
-        return observation, action
-
-    if store["status"] == "Watch":
+    elif store["status"] == "Watch":
         observation = (
-            f"{store['store_name']} is stable but carrying "
+            f"{store_name} is stable but carrying "
             f"{store['stock_cover_weeks']:.1f} weeks of stock. "
             f"Sell-through is {store['sell_through_pct']:.1f}% while "
             f"{store['aged_inventory_pct']:.1f}% of inventory is ageing."
         )
-        action = (
-            "Review size and color mix before the next allocation cycle and "
-            "move slow variants toward stores with stronger demand."
+    else:
+        observation = (
+            f"{store_name} is performing strongly with "
+            f"{store['sell_through_pct']:.1f}% sell-through, "
+            f"{store['sku_availability_pct']:.1f}% SKU availability and "
+            f"{store['sales_growth_pct']:+.1f}% sales growth."
         )
-        return observation, action
 
-    observation = (
-        f"{store['store_name']} is performing strongly with "
-        f"{store['sell_through_pct']:.1f}% sell-through, "
-        f"{store['sku_availability_pct']:.1f}% SKU availability and "
-        f"{store['sales_growth_pct']:+.1f}% sales growth."
-    )
-    action = (
-        f"Protect availability in {store['top_category']} and prioritize replenishment "
-        "for high-velocity size-color variants before adding depth to slower SKUs."
-    )
+    outlet_actions = {
+        "SW-HYD-BAN": (
+            f"Protect {top_category} availability; review the "
+            f"{store['at_risk_skus']} flagged SKUs and replenish only the "
+            "fastest-selling size-color variants."
+        ),
+        "SW-HYD-HIM": (
+            f"Tighten the {top_category} size-color mix; clear ageing variants "
+            f"and investigate the {store['at_risk_skus']} flagged SKUs before "
+            "the next allocation."
+        ),
+        "SW-WGL-HNK": (
+            f"Rebalance {top_category} stock first; transfer slow variants out "
+            f"and bring cover below 8 weeks before adding more depth."
+        ),
+        "SW-VJA-MGR": (
+            f"Pre-build {top_category} replenishment for winning variants; "
+            f"review the {store['at_risk_skus']} flagged SKUs so growth is not "
+            "constrained by availability."
+        ),
+        "SW-VSK-DWK": (
+            f"Pause replenishment on slow {top_category} variants; move aged "
+            f"stock to stronger stores and work through the "
+            f"{store['at_risk_skus']} flagged SKUs."
+        ),
+    }
+
+    action = outlet_actions.get(store_id)
+
+    if action is None:
+        if store["status"] == "At risk":
+            action = (
+                f"Pause slow-variant replenishment in {top_category}; transfer "
+                f"excess stock and review all {store['at_risk_skus']} flagged SKUs."
+            )
+        elif store["status"] == "Watch":
+            action = (
+                f"Review the {top_category} size-color mix; rebalance slow "
+                "variants before the next allocation cycle."
+            )
+        else:
+            action = (
+                f"Protect {top_category} availability; replenish winning "
+                "size-color variants before adding depth to slower SKUs."
+            )
+
     return observation, action
 
 
