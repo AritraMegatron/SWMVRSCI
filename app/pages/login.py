@@ -300,10 +300,10 @@ def login_page() -> None:
                         ui.separator().classes("my-1 opacity-20")
 
                         ui.label(
-                            "MVP authentication only. Production identity, roles "
-                            "and password management are not implemented."
+                            "Contact info@inventideai.com for brand-specific "
+                            "user credentials."
                         ).classes(
                             "text-xs leading-relaxed"
                         ).style(
-                            "color:rgba(255,255,255,0.66);"
+                            "color:rgba(255,255,255,0.78);"
                         )
