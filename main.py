@@ -9,6 +9,7 @@ from nicegui import app, ui
 
 BASE_DIR = Path(__file__).resolve().parent
 ENV_FILE = BASE_DIR / ".env"
+FAVICON_PATH = BASE_DIR / "app" / "static" / "inventide-logo.png"
 
 # Load local MVP credentials when a .env file is present.
 # On Render, environment variables configured in the dashboard are used.
@@ -45,7 +46,7 @@ is_render = os.getenv("RENDER", "").lower() == "true"
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(
         title="Vesper | Swayamvar Intelligence Suite",
-        favicon="/swmvr-static/inventide-logo.png",
+        favicon=str(FAVICON_PATH),
         host="0.0.0.0",
         port=int(os.getenv("PORT", "8090")),
         reload=not is_render,
